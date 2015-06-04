@@ -1,0 +1,705 @@
+OpenAL程序员手册(一）
+
+OpenAL程序员手册
+
+前言
+本文件来源于因特网,版权归原作者所有.这篇文件的中译版版权归antking所有,如
+您对本文件有任何建议,请联系我.(antking@gmail.cn)
+
+OpenAL 引言
+
+    关于OPENAL的使要围绕在三个对象:Buffer(缓冲器),Sources(声源)和Listener(
+听众).缓冲器用于装载数据,然后把它附加在声源上,声源设置并播放.这样,听众就能
+根据位置和方向听到声音.建立几个声源和一个听众,然后更改声源的位置和方向.听众
+就能听见3D的声音.
+
+加载/卸载
+
+   一个很容易的方法是用alutInit函数,用参数(0,NULL)初始化设备,这样做就避免了
+调用OPENAL文本描述.
+如想用EAX,通过名字调用allsExtansionPresent检查EAX,然后用alGetProcAddress
+分配变量给函数指针.
+如想用PCM数据的缓冲器用allBufferData,如果PCM数据是以WAV格式存储,alutLoad
+WAVFile或alutLoadWAVMen可以恢复它并用alBufferData提供所需的信息.
+对于通常用的声音,可以用alGetError得到错误信息.
+调用alGetSources能得到声源的数量.
+缓冲器附加到声源上用alSourcei.
+在退出程序前用alutExit清除OPENAL.
+
+缓冲器参数
+
+   每个缓冲器是由alGenBuffers附加一个参数引起的.alGenBuffer[f,i]函数用到下面
+的参数:
+参数              数据类型              描述
+AL_FREQUENCY           i          用Hz表示缓冲器的频率
+AL_BITS                i          缓冲器的位深度
+AL_CHANIVELS           i          缓冲器的频道数(>1 有效,缓冲器不能在播放时定位)
+AL_SIZE                i          用字节表示缓冲器的大小
+AL_DATA                i          数据在缓冲器的初始位置
+
+声音参数
+
+   声源由alGenSources加一个参数引起的.函数alSource[f,3f,fv,i]和alSource
+[f,3f,fv,i]用于设置和使用下面的声源参数:
+参数              数据类型              描述
+AL_PITCH               f          pitch相对总是确定的
+AL_GAIN                f          声源获得变量是确定的
+AL_MAX_DISTANCE        f          used with the Inverse(lampde distance model
+to set the distance where there will to no
+langer beany attenuation of the source.
+AL_ROLLOFF_FACTOR      f          声源的rolloff率,默认的是1.0
+AL_REFERENCE_DISTANCE  f          声源的音量在距离上减少一半
+AL_MIN_GAIN            f          声音的最小获得
+AL_MAX_GAIN            f          声音的最大获得
+AL_CONE_OUTER_GAIN     f          在定向的圆锥以外的获得
+AL_CONE_INNER_ANGLE    f,i        在定向的圆锥内的获得
+AL_CONE_OUTER_ANGLE    f,i        圆锥的角度,默认为360
+AL_POSITION            fv,3f      X,Y,Z位置
+AL_VELOCITY            fv,3f      速度矢量
+AL_DIRECTION           fv,3f      方向矢量
+AL_SOURCE_RECATIVE     i          决定位置是否与听众有联系,默认为AL_FLASE
+AL_LOOPING             i          设置循环播放(AL_TRUE)或者(AL_FLASE)
+AL_BUFFER              i          被附加到声源的缓冲器ID
+AL_SOURCE_STATE        i          声源的状态(AL_STOPPED,AL_PLAYING,...)
+AL_BUFFERS_QUEUED*     i          队列中声源缓冲器的个数
+AL_BUFFERS_PROCESSED*  i          在处理的声源的缓冲器的个数[来源：GameRes.com]
+
+一个声源的队列缓冲器
+
+    连续的声音不能打断,就需要缓冲器队列.把缓冲器排队,缓冲器和声源用通常的方式
+表示,但是alSourcei不能把大量缓冲器附加在声源上.代替它的是函数alSourceQueueBuf
+fers和alSourceUnqueueBuffers.函数alSourceQueueBuffers能把一个缓冲器或多个缓冲
+器附加在一个声源上,并且能在声源上调用alSourcePlay.到声源在播放时,alSourceUnqu
+eueBuffers能释放已播放的缓冲器.这些被留出的缓冲器能用来装载数据或被丢弃.alSou
+rceQueueBuffers函数能从新把新的或重新加载的缓冲器附加到播放中的声源.只要有一个
+新的缓冲器在队列中播放,那声源就不断的播放.也有一些OPENAL的执行体不能在队列中执
+行,可以注意下面的方法:
+1.一个流式的声源用alSourceQueueBuffers附加在缓冲器队列上;
+2.用alSourceQueueBuffers加载的多个缓冲器的源应有相同的声音格式;
+
+Dopple Shift(多普勒效应)
+
+    如果速度应用于听众对象或者任意声源对象,那么,Dopple Shift将运用于声音.在OPE
+NAL创造性的执行体上,下面的公式是用于Dopple Shift(多普勒效应):
+DV=AL_DOPPLER_VELOCITY
+DF=AL_DOPPLER_FACTOR
+VI=听众速度
+VS=声源速度
+F=实例速度
+F'=多普勒效应频率
+F'=F*(DV-DF*VI)/(DV+DF*VS).
+多普勒速度用声音的秒数表示,默认为343.如果用分/小表示,那么多普勒速度也相应
+改变.
+多普勒因子用于夸大或强调多普勒效应.
+
+错误处理
+    alGetError用于表示OPENAL任何时候的错误情况.
+alGetError用于清除OPENAL的错误,因此在重要情况时,应调用alGetError来清除错误.
+错误参数                     描述
+AL_NO_ERROR           当前没有任何错误
+AL_INVALID_NAME       通过OPENAL函数的一个错误ID
+AL_INVALID_ENUM       通过OPENAL函数的一个错误的变量
+AL_INVALID_value      通过OPENAL函数的一个错误变量
+AL_INVALID_OPERATION  返回操作是错误的
+AL_OUT_OF_MEMORY      返回操作结果益出内存
+
+OpenAL程序员手册（二）
+
+核心OPENAL函数
+
+前言
+本文件来源于因特网,版权归原作者所有.这篇文件的中译版版权归antking所有,如
+您对本文件有任何建议,请联系我.(antking@gmail.cn)
+
+与缓冲器相关
+
+alGenBuffers
+描述:
+用于描述一个或多个缓冲器.
+函数原型:
+ALvoid alGenBuffers(ALsizei n,ALuint *buffers);
+参数:
+n                  缓冲器的个数
+*buffers           指针(用于指向新缓冲器的名字)
+返回变量:
+None
+评论:
+如果得到的缓冲器数不能建立,alGetError将得到错误.如果错误发生,表示没有缓冲
+器建立.如果n为0,表示alGenBuffers没有做任何事,并且没有错误返回.
+
+alDeleteBuffers
+描述:
+用于删除一个或多个缓冲器.
+函数原型:
+ALvoid alDeleteBuffers(ALsizei n,ALuint *buffers);
+参数:
+n                  删除的缓冲器的个数
+*buffer            指针(指向被删除的缓冲器)
+返回值:
+None
+评论:
+如果返回的缓冲器不能被删除,alGetError将得到错误,如果错误出现,没有缓冲器删
+除.如果n等于0,alDeleteBuffers没有做任何事,并且没有错误返回.[来源：GameRes.com]
+
+allsBuffer
+描述:
+测试缓冲器名字的正确性.
+函数原型:
+ALboolean  allsBuffer(ALuint  buffer);
+参数:
+buffer                  用于测试的缓冲器的名字
+返回值:
+AL_TRUE 表示正确, AL_FALSE表示错误.
+
+alBufferData
+描述:
+用声音数据填充缓冲器.
+函数原型:
+ALvoid alBufferData(ALuint buffer,ALenum format,ALvoid *data,ALsizei size,
+ALsizei freq);
+参数:
+buffer                  用于填充的缓冲器的名字
+format                  AL_FORMAT_MONO8,AL_FORMAT_MODO16,
+AL_FORMAT_STEREO8,AL_FORMAT_STEREO16
+*data                   指向声音数据
+size                    用字节表示声音数据的大小
+freq                    声音数据的频率
+返回值:
+None
+
+alGetBufferf
+描述:
+用于恢复一个缓冲器的浮点指针.
+函数原型:
+ALvoid alGetBufferf(ALuint buffer,ALenum pname,ALfloat *value);
+参数:
+buffer                  被恢复的缓冲器的名字
+pname                   用于恢复的名字
+*value                  被恢复数据的浮点指针
+返回值:
+None
+评论:
+目前没有用于缓冲器的浮点属性.
+
+alGetBufferi
+描述:
+用于恢复缓冲器的整数指针.
+函数原型:
+ALvoid alGetBufferi(ALuint buffer,ALenum pname,ALint *value);
+参数:
+buffer                  被恢复的缓冲器的名字
+pname                   AL_FREQUENCY,AL_BITS,AL_CHANNELS,AL_SIZE,AL_DATA
+*value                  被恢复数据的整数指针
+返回值:
+None
+
+OPENAL程序员手册（三）
+
+与声源相关
+
+前言
+本文件来源于因特网,版权归原作者所有.这篇文件的中译版版权归antking所有,如
+您对本文件有任何建议,请联系我.(antking@gmail.cn)
+
+alGenSources
+描述:
+用于产生一个或多个声源.
+函数原型:
+ALvoid alGenSources(ALsizei n,ALuint *sources);
+参数:
+n                       产生的声源的个数
+*sources                以整形的方式指向新声源的名字的缓冲器
+返回值:
+None
+评论:
+如果得到的声源没有建立,那么alGetError将得到错误;如果错误是真的,没有声源
+产生;如果n为0,alGenSources没有做任何事,并且没有错误返回.
+
+alDeleteSources
+描述:
+用于删除一个或多个声源.
+函数原型:
+ALvoid alDeleteSources(ALsizei n,ALuint *sources);
+参数:
+n                       被删除的声源
+*sources                指向被删除的声源
+返回值:
+None
+评论:
+与上相同.
+
+allsSource
+描述:
+测试声源名字是否正确.
+函数原型:
+ALboolean allsSource(ALuint source);
+参数:
+source                  用于测试的声源名字.
+返回值:
+AL_TRUE,AL_FLASE
+
+alSourcef
+描述:
+用于设置声源的浮点指针.
+函数原型:
+ALvoid alSourcef(ALuint source,ALenum pname,ALfloat value);
+参数:
+source                  被设置的声源的名字.
+pname                   AL_PITCH,AL_GAIN,AL_MAX_DISTANCE,AL_ROLLOFF_FACTOR,
+AL_REFERENCE_DISTANCE,AL_MIN_GAIN,AL_MAN_GAIN,
+AL_CONE_OUTER_GAIN
+value                   用于设置属性
+返回值:
+None
+
+alSourcefv
+描述:
+用于设置声源的浮点指针矢量.
+函数原型:
+ALvoid alSourcefv(ALuint source,ALenum pname,ALfloat *values);
+参数:
+source                  被设置的声源的名字
+pname                   AL_POSITION,AL_VELOCITY,AL_DIRECTION
+*values                 指向矢量
+返回值:
+None
+评论:
+这个函数取决于函数alSource3f.
+
+alSource3f
+描述:
+用3个浮点指针变量设置声源.
+函数原型:
+ALvoid alSource3f(ALuint source,ALenum pname,ALfloat v1,ALfloat v2,
+ALfloat v3);
+参数:
+source                   被设置的声源的名字
+pname                    AL_POSITION,AL_VELOCITY,AL_DIRECTION
+v1,v2,v3                 三个浮点变量
+返回值:
+None
+评论:
+这个函数取决于alSourcefv.
+
+alSourcei
+描述:
+用于设置声源的整型值
+函数原型:
+ALvoid alSourcei(ALuint source,ALenum pname,ALint value);
+参数:
+source                   用于设置的声源的名字
+pname                    AL_SOURCE_RELATIVE,AL_CONE_INTVER_ANGLE,
+AL_CONE_OUTER_ANGLE,AL_LOOPING,AL_BUFFER,
+AL_SOURCE_STATE
+value                    用于设置的变量
+返回值:
+None
+
+alGetSourcef
+描述:
+用于恢复声源的浮点指针值.
+函数原型:
+ALvoid alGetSourcef(ALuint source,ALenum pname,ALfloat *value);
+参数:
+source                   被恢复的声源的名字.
+pname                    AL_PITCH,AL_GAIN,AL_MIN_GAIN,AL_MAX_GAIN,AL_NAX_DIST
+ANCE,AL_ROLLOFF_FACTOR,AL_CONE_OUTER_GAIN,AL_CONE_IN
+NER_ANGLE,AL_CONE_OUTER_ANGLE,AL_REFERENCE_DISTANCE
+*value                   指向被恢复的浮点指针值
+
+alGetSourcefv
+描述:
+用于恢复声源的浮点指针矢量.
+函数原型:
+ALvoid alGetSourcefv(ALuint source,ALenum pname,ALfloat *valuts);
+参数:
+source                    被恢复的声源的名字.
+pname                     AL_POSITION,AL_VELOCITY,AL_DIRECTION
+*values                   指向被恢复的矢量.
+返回值:
+NONE
+
+alGetSourcei
+描述:
+用于恢复声源的整型权.
+函数原型:
+ALvoid alGetSourcei(ALuint source,ALenum pname,ALint *value);
+参数:
+source                    被释放的声源的名字.
+pname                     AL_SOURCE_RELATIVE,AL_BUFFER,
+AL_SOURCE_STATE,AL_BUFFER_QUEUED
+AL_BUFFERS_PROCESSED
+*value                    指向被释放的整型指针.
+返回值:
+NONE
+
+alSourcePlay
+描述:
+用于播放声音.
+函数原型:
+ALvoid alSourcePlay(ALuint source);
+参数:
+source                    用于播放的声源.
+返回值:
+NONE
+
+alSourcePlayv
+描述:
+用于播放一系列声源.
+函数原型:
+ALvoid alSourcePlayv(ALsizei n,ALuint *sources);
+参数:
+n                         用于播放的声源的个数.
+*sources                  指向一组用于播放的声源.
+返回值:
+NONE
+
+alSourcePause
+描述:
+用于暂停.
+函数原型:
+ALvoid alSourcePause(ALuint source);
+参数:
+source                    用于暂停的声源的名字.
+
+alSourcePausev
+描述:
+用于暂停一组声源.
+函数原型:
+ALvoid alSourcePausev(ALsizei n,ALuint *sources);
+参数:
+n                         被暂停的声源的个数.
+*sources                  指向被暂停的一组声源.
+返回值:
+NONE[来源：GameRes.com]
+
+alSourceStop
+描述:
+用于停止一个声源.
+函数原型:
+ALvoid alSourceStop(ALuint source);
+参数:
+source                    被停止的声源的名字
+返回值:
+NONE
+
+alSourceStopv
+描述:
+用于停止一组声源.
+函数原型:
+ALvoid alSourceStopv(ALsizei n,ALuint *sources);
+参数:
+n                          被停止的声源的个数
+*sources                   指向被停止的一组声源
+返回值:
+NONE
+
+alSourceRewind
+描述:
+停止声源并且设置他的状态为AL_INITIAL.
+函数原型:
+ALvoid alSourceRewind(ALuint source);
+参数:
+source                     被停止的声源的名子
+返回值:
+NONE
+
+alSourceRewindv
+描述:
+停止一组声源并且设置它们的状态为AL_INITIAL.
+函数原型:
+ALvoid alSourceRewindv(ALsizei n,ALuint *sources);
+参数:
+n                          被停止的声源的个数
+*sources                   指向一组被停止的声源
+返回值:
+NONE
+
+alSourceQueueBuffers
+描述:
+用于把一个声源排列在一列缓冲器中.
+函数原型:
+ALvoid alSourceQueueBuffers(ALuint source,ALsizei n,ALuint *buffers);
+参数:
+source                     被排列的声源的个数
+n                          排在第几个缓冲器中
+*buffers                   指向一组被排队的缓冲器的名字
+返回值:
+NONE
+
+alSourceUnqueueBuffers
+描述:
+用于将一个声源所用的一系列缓冲器退出队列.
+函数原型:
+ALvoid alSourceUnqueueBuffers(ALuint source,ALsizei n,ALuint *buffers);
+参数:
+source                     被退出队列的声源的名字
+n                          退出的缓冲器的个数
+*buffers                   指向用于删除的缓冲器的名字的数组
+返回值:
+NONE
+评论:
+这个函数只在所有的缓冲器能被删除时 变换位置.
+
+OPENAL程序员手册（四）
+
+与听众有关
+
+alListenerf
+描述:
+这个函数为听众设置一个浮点指针.
+函数原型:
+ALvoid alListenerf(ALenum pname,ALfloat value);
+参数:
+pname                      被设置的属性的名字
+value                      设置属性为浮点值
+返回值:
+NONE[来源：GameRes.com]
+
+alListenerf
+描述:
+这个函数为听众设置浮点指针.
+函数原型:
+ALvoid alListenerf(ALenum pname,ALfloat v1,ALfloat v2,ALfloat v3);
+参数:
+pname                      被设置的属性的名字
+AL_POSITION ,AL_VELOCITY
+v1,v2,v3                   被设置的属性的值
+返回值:
+NONE
+
+alListenerfv
+描述:
+这个函数为听众设置浮点指针矢量.
+函数原型:
+ALvoid alListenerfv(ALenum pname,ALfloat *values);
+参数:
+pname                      被设置的属性的名字
+AL_POSITION
+AL_VELOCITY
+AL_ORIENTATION
+*values                    指向浮点指针矢量
+返回值:
+NONE
+
+alListeneri
+描述:
+这个函数为听众设置一个整型值.
+函数原型:
+ALvoid alListeneri(ALenum pname,ALint value);
+参数:
+pname                      被设置的属性的名字
+value                      用整型值设置属性
+返回值:
+NONE
+评论:
+当前没有整型听众属性.
+
+alGetListenerf
+描述:
+这个函数用于取得听众的浮点指针.
+函数原型:
+ALvoid alGetListenerf(ALenum pname,ALfloat *value);
+参数:
+pname                      被取得的属性的名字
+AL_GAIN
+*value                     被取得的浮点指针值
+返回值:
+NONE
+
+alGetListener3f
+描述:
+这个函数取得听众的一列三个浮点指针值.
+函数原型:
+ALvoid alGetListener3f(ALenum pname,ALfloat *v1,ALfloat *v2,ALfloat *v3);
+参数:
+pname                      被取得的参数的名字
+AL_POSITION
+AL_VELOCITY
+*v1,*v2,*v3                用于存放三个浮点指针
+返回值:
+NONE
+
+alGetListenerfv
+描述:
+从听众处取得一个浮点指针矢量.
+函数原型:
+ALvoid alGetListenerfv(ALenum pname,ALfloat *values);
+参数:
+pname                      被取得的属性的名字
+AL_POSITION
+AL_VELOCITY
+AL_ORIENTATION
+*values                    用于存放浮点指针矢量
+返回值:
+NONE
+alGetListeneri
+描述:
+从听众处取得一个整型值.
+函数原型:
+ALvoid alGetListeneri(ALenum pname,ALint *value);
+参数:
+pname                      被取得的属性的名字
+*value                     用于存放整型值
+返回值:
+NONE
+评论:
+当前没有整型听众属性.
+
+OPENAL程序员手册（五）
+
+与状态有关
+
+前言
+本文件来源于因特网,版权归原作者所有.这篇文件的中译版版权归antking所有,如
+您对本文件有任何建议,请联系我.(antking@gmail.cn)
+
+
+alEnable
+描述:
+能使用OPENAL设备的功能.
+函数原型:
+ALvoid alEnable(ALenum capability);
+参数:
+capability                 被使用的功能的名字
+返回值:
+NONE
+评论:
+当前,用这个函数不能释放功能,因此,当 被调用时有错误AL_INVALID_ENUM被引起.
+
+alDisable
+描述:
+用于释放OPENAL的功能.
+函数原型:
+ALvoid alDisable(ALenum capability);
+参数:
+capability                 被释放的功能的名字
+返回值:
+NONE
+评论:
+当前,没有一个功能能被这个函数释放,因此,当 被调用时有错误AL_INVALID_ENUM被引起.
+
+allsEnabled
+描述:
+当一个特别的功能能被OPENAL设置启用时,返回一个boolean标识.
+函数原型:
+ALboolean allsEnabled(ALenum capability);
+参数:
+capability                 被启用的功能的名字
+返回值:
+AL_TRUE                表示功能启用
+AL_FLASE               表示功能释放
+评论:
+当前,这个函数总是返回AL_FLASE,也没有功能定义.当 被调用时有错误AL_INVALID_ENUM被设置.
+
+alGetBoolean
+描述:
+返回boolean openal状态.
+函数原型:
+ALboolean alGetBoolean(ALenum pname);
+参数:
+pname                      被质问的状态
+返回值:
+返回值用pname来描述.
+评论:
+当前,没有任何的boolean状态被定义,因此这个函数总是发生AL_INVALID_ENUM错误.
+
+alGetDouble
+描述:
+返回两个精确的浮点值指向OPENAL状态.
+函数原型:
+ALdouble alGetDouble(ALenum pname);
+参数:
+pname                      被质问的状态
+返回值:
+用pname指定两个值.
+评论:
+当前没有任何东西,因此将产生错误.
+
+alGetFloat
+描述:
+返回一个浮点值指向OPENAL状态.
+函数原型:
+ALfloat alGetFloat(ALenum pname);
+参数:
+pname                      被质问的状态
+AL_DOPPLER_FACTOR
+AL_DOPPLER_VELOCITY
+返回值:
+用pname来描述.
+
+alGetInteger
+描述:
+返回一个指向OPENAL状态的整型值.
+函数原型:
+ALint alGetIneger(ALenum pname);
+参数:
+pname                      被质问的状态
+AL_DISTANCE_MODEL
+返回值:
+用pname来描述.
+
+alGetBooleanv
+描述:
+用boolean值描述OPENAL的状态.
+函数原型:
+ALvoid alGetBooleanv(ALenum pname,ALboolean *data);
+参数:
+pname                      返回的状态
+*data                      指向状态存放的位置
+返回值:
+NONE
+评论:
+当前,没有任何描述,因此总是返回错误.
+
+alGetDoublev
+描述:
+得到指向OPENAL状态的两个精确浮点值.
+函数原型:
+ALvoid alGetDoublev(ALenum pname,ALdouble *data);
+参数:
+pname                      返回的状态
+*data                      指向状态存放的位置
+返回值:
+NONE
+评论:
+(同上)
+
+alGetFloatv
+描述:
+得到指向OPENAL状态的浮点值.
+函数原型:
+ALvoid alGetFloatv(ALenum pname,ALfloat *data);
+参数:
+pname                      得到的状态
+AL_DOPPLER_FACTOR
+AL_DOPPLER_VELOCITY
+*data                      指向状态存放的位置
+返回值:
+NONE[来源：GameRes.com]
+
+alGetIntegerv
+描述:
+得到一个指向OPENAL状态的整型数组.
+函数原型:
+ALvoid alGetIntegerv(ALenum pname,ALint *data);
+参数:
+pname                      返回的状态
+AL_DISTANCE_MODEL
+*data                      指向状态存放的位置
+返回值:
+NONE
+
+alGetString
+描述:
+得到一个OPENAL字符串.
+函数原型:
+ALubyte *alGetString(ALenum pname);
+参数:
+pname                      返回的值
+AL_VENDOR
+AL_VERSION
+AL_RENDERER
+AL_EXTENSIONS
+返回值:
+NONE
