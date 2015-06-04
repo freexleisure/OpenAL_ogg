@@ -1,0 +1,150 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="include">
+      <UniqueIdentifier>{e19478ec-f737-4d8e-8438-147c5e05e8ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{a4240f5c-62ef-4993-aaba-db01737775af}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\lookup_data.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lpc.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lsp.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\masking.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mdct.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\misc.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\os.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\psy.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\registry.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scales.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\smallft.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\window.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\backends.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\bitrate.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\codebook.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\codec_internal.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\envelope.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\highlevel.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lookup.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vorbis\codec.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vorbis\vorbisenc.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vorbis\vorbisfile.h">
+      <Filter>include</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\lpc.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lsp.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mapping0.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mdct.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\psy.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\registry.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\res0.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sharedbook.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\smallft.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\synthesis.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vorbisenc.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vorbisfile.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\window.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\analysis.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\barkmel.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\bitrate.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\block.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\codebook.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\envelope.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\floor0.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\floor1.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\info.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lookup.c">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
